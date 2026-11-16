@@ -29,6 +29,10 @@ label{display:block;font-size:12px;color:var(--mu);margin:0 0 3px}
 .btn{border:0;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer;background:var(--pu);color:#fff;text-align:center}
 .btn.g{background:var(--gr)}.btn.o{background:#fff;color:var(--pu);border:1px solid #cdbbe6}.btn.r{background:#fff;color:var(--rd);border:1px solid #f0c0c0}
 .btn.s{padding:6px 11px;font-size:13px;border-radius:8px}
+.btn.bl{background:#3b6fd4}.btn.or{background:var(--or)}
+.pill{font-size:11px;padding:2px 8px;border-radius:9px;background:#ffe9cc;color:#a85a00;font-weight:700}
+.three{display:flex;gap:6px;margin-top:6px}.three>div{flex:1}.three input{padding:8px 7px}
+.clk{cursor:pointer}
 .btn[disabled]{opacity:.5}
 .srch{margin-bottom:10px}
 table{width:100%;border-collapse:collapse;font-size:13px}
@@ -85,13 +89,13 @@ else{
 firebase.initializeApp(FB_CFG);
 var auth=firebase.auth(),db=firebase.firestore();
 try{db.enablePersistence({synchronizeTabs:true}).catch(function(){})}catch(e){}
-var U=null,base=null,unsubs=[],W=[],P=[],E=[],PAGE='home',WID=null,FS='';
+var U=null,base=null,unsubs=[],W=[],P=[],E=[],D=[],DE=[],PAGE='home',WID=null,DID=null,FS='';
 function unsub(){unsubs.forEach(function(u){try{u()}catch(e){}});unsubs=[]}
 auth.onAuthStateChanged(function(u){
  unsub();$('login').classList.add('hide');$('wrap').classList.add('hide');
  if(!u){U=null;$('login').classList.remove('hide');return}
  U=u;base=db.collection('users').doc(u.uid);$('wrap').classList.remove('hide');
- ['workers','products','entries'].forEach(function(c){unsubs.push(base.collection(c).onSnapshot(function(s){var a=s.docs.map(function(d){var x=d.data();x.id=d.id;return x});if(c==='workers')W=a;else if(c==='products')P=a;else E=a;render()},function(){}))});
+ ['workers','products','entries','dealers','dentries'].forEach(function(c){unsubs.push(base.collection(c).onSnapshot(function(s){var a=s.docs.map(function(d){var x=d.data();x.id=d.id;return x});if(c==='workers')W=a;else if(c==='products')P=a;else if(c==='entries')E=a;else if(c==='dealers')D=a;else DE=a;render()},function(){}))});
  go('home')
 });
 window.doLogin=function(){var e=$('lgE').value.trim(),p=$('lgP').value;$('lgErr').textContent='';if(!e||!p){$('lgErr').textContent='ইমেইল ও পাসওয়ার্ড দিন';return}
@@ -103,37 +107,50 @@ function netS(){$('net').textContent=navigator.onLine?'● অনলাইন':'
 function due(w){var t=+w.opening||0;E.forEach(function(e){if(e.wid!==w.id)return;if(e.type==='invoice')t+=+e.due||0;else t-=+e.amount||0});return t}
 function sorted(a,f){return a.slice().sort(function(x,y){return (x[f]||'').localeCompare(y[f]||'','bn')})}
 /* ---------- পাতা ---------- */
-var TABS=[['home','হোম'],['workers','কর্মী'],['products','পণ্য'],['set','সেটিং']];
+var TABS=[['home','হোম'],['workers','গ্রাহক'],['products','পণ্য'],['set','সেটিং']];
 window.go=function(p,id){PAGE=p;WID=id||null;FS='';render()};
-window.back=function(){go('workers')};
+window.back=function(){if(PAGE==='dpage')go('dealers');else if(PAGE==='dealers')go('home');else go('workers')};
 function render(){
  if(!U)return;
- var tab=PAGE==='wpage'?'workers':PAGE;
+ var tab=PAGE==='wpage'?'workers':(PAGE==='dpage'||PAGE==='dealers')?'home':PAGE;
  $('nav').innerHTML=TABS.map(function(t){return '<button class="'+(t[0]===tab?'act':'')+'" onclick="go(\''+t[0]+'\')">'+t[1]+'</button>'}).join('');
- $('bk').classList.toggle('hide',PAGE!=='wpage');
+ $('bk').classList.toggle('hide',!(PAGE==='wpage'||PAGE==='dpage'||PAGE==='dealers'));
  var f=$('fs'),keep=f&&document.activeElement===f;
- ({home:rHome,workers:rWorkers,wpage:rWPage,products:rProducts,set:rSet})[PAGE]();
+ ({home:rHome,workers:rWorkers,wpage:rWPage,dealers:rDealers,dpage:rDPage,products:rProducts,set:rSet})[PAGE]();
  var nf=$('fs');if(keep&&nf){nf.focus();nf.setSelectionRange(nf.value.length,nf.value.length)}
 }
 function setPg(t,h,fab){$('ttl').textContent=t;$('pg').innerHTML=h+(fab?'<button class="fab" onclick="'+fab+'">+</button>':'')}
 function rHome(){
- var td=dkey(Date.now()),tot=0,cnt=0,cash=0,cred=0,rows=[];
- W.forEach(function(w){var d=due(w);tot+=d;if(d>0)cnt++;rows.push({w:w,d:d})});
- rows.sort(function(a,b){return b.d-a.d});
- var tl=[];E.forEach(function(e){if(e.day!==td)return;if(e.type==='invoice'){cash+=+e.paid||0;cred+=+e.due||0}else cash+=+e.amount||0;tl.push(e)});
- tl.sort(function(a,b){return b.ts-a.ts});
- var show=FS==='all'?rows:rows.slice(0,5);
- setPg('ডিলার হিসাব','<div class="big r"><small>কর্মীদের কাছে মোট বাকি</small><b>'+money(tot)+'</b><small style="margin-top:4px">'+bn(W.length)+' জন কর্মীর মধ্যে '+bn(cnt)+' জনের বাকি আছে</small></div>'
- +'<div class="two"><div class="big g"><small>আজ নগদ নিয়েছি</small><b>'+money(cash)+'</b></div><div class="big o"><small>আজ বাকিতে দিয়েছি</small><b>'+money(cred)+'</b></div></div>'
- +'<div class="card"><b>কার কত বাকি (বেশি থেকে কম)</b>'+(show.length?show.map(function(r){return '<div class="row"><span class="nm" onclick="go(\'wpage\',\''+r.w.id+'\')">'+esc(r.w.name)+'</span><span class="'+(r.d>0?'red':'grn')+'">'+money(r.d)+'</span></div>'}).join(''):'<div class="sub" style="margin-top:6px">এখনো কোনো কর্মী নেই। "কর্মী" পাতা থেকে যোগ করুন</div>')+(rows.length>5&&FS!=='all'?'<div class="row"><span class="sub" onclick="FS=\'all\';render()" style="cursor:pointer">আরও '+bn(rows.length-5)+' জন দেখুন …</span><span></span></div>':'')+'</div>'
- +'<div class="card"><b>আজকের লেনদেন</b>'+(tl.length?tl.map(function(e){var w=W.find(function(x){return x.id===e.wid});return '<div class="row"><span>'+esc(w?w.name:'?')+' — '+(e.type==='invoice'?'চালান':'বাকি জমা')+'</span><span class="'+(e.type==='invoice'?'':'grn')+'">'+(e.type==='invoice'?money(e.total):'+ '+money(e.amount))+'</span></div>'}).join(''):'<div class="sub" style="margin-top:6px">আজ কোনো লেনদেন নেই</div>')+'</div>')
+ var tot=0,dt=0;W.forEach(function(w){tot+=due(w)});D.forEach(function(d){dt+=ddue(d)});
+ setPg('ডিলার হিসাব','<div class="big r clk" onclick="go(\'workers\')"><small>মোট গ্রাহক বাকি ›</small><b>'+money(tot)+'</b></div>'
+ +'<div class="big p clk" onclick="go(\'dealers\')"><small>মোট ডিলার বাকি ›</small><b>'+money(dt)+'</b></div>')
+}
+function money2(n){n=Math.round((+n||0)*100)/100;return '৳ '+bn(n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))}
+function ddue(d){var t=0;DE.forEach(function(e){if(e.did!==d.id)return;if(e.type==='challan')t+=+e.due||0;else t-=+e.amount||0});return t}
+function rDealers(){
+ var l=sorted(D,'name'),h='<div style="display:flex;justify-content:flex-end;margin-bottom:10px"><div class="btn bl" onclick="dForm()">+ নতুন ডিলার</div></div><div class="card" style="padding:6px 6px"><table><tr><th>ক্রমিক</th><th>নাম</th><th>বাকি</th><th>অ্যাকশন</th></tr>';
+ if(!l.length)h+='<tr><td colspan=4 class="sub">কোনো ডিলার নেই</td></tr>';
+ l.forEach(function(d,i){var v=ddue(d);h+='<tr><td>'+bn(i+1)+'</td><td><span class="nm" onclick="go(\'dpage\',\''+d.id+'\')">'+esc(d.name)+'</span></td><td class="'+(v>0?'red':'grn')+'" style="white-space:nowrap">'+money2(v)+'</td><td class="tb"><button class="ib" onclick="dForm(\''+d.id+'\')">✎</button><button class="ib" onclick="delD(\''+d.id+'\')">🗑</button></td></tr>'});
+ setPg('ডিলার তালিকা',h+'</table></div>')
+}
+function rDPage(){
+ var d=D.find(function(x){return x.id===WID});if(!d){go('dealers');return}
+ var v=ddue(d),l=DE.filter(function(e){return e.did===d.id}).sort(function(a,b){return b.ts-a.ts});
+ var h='<div class="card"><div style="font-size:18px;font-weight:700">'+esc(d.name)+'</div><div class="'+(v>0?'red':'grn')+'" style="font-size:15px;margin-top:2px">বাকি: '+money2(v)+'</div></div>'
+ +'<div class="two" style="margin-bottom:10px"><div class="btn bl" onclick="chForm(\''+d.id+'\')">নতুন চালান</div><div class="btn or" onclick="dpayForm(\''+d.id+'\')">পেমেন্ট</div></div>'
+ +'<div class="card" style="padding:6px 6px"><table style="font-size:12px"><tr><th>তারিখ</th><th>চালান</th><th>বিল</th><th>পেমেন্ট</th><th>বাকি</th><th></th></tr>';
+ if(!l.length)h+='<tr><td colspan=6 class="sub">কোনো লেনদেন নেই</td></tr>';
+ l.forEach(function(e){var del='<td class="tb"><button class="ib" onclick="event.stopPropagation();delDE(\''+e.id+'\')">🗑</button></td>';
+  if(e.type==='challan')h+='<tr class="clk" onclick="chDet(\''+e.id+'\')"><td>'+dshow(e.day)+'</td><td><b style="color:var(--pd)">'+esc(bn(e.no))+'</b></td><td>'+bn((+e.total).toLocaleString('en-US'))+'</td><td class="grn">'+bn((+e.paid).toLocaleString('en-US'))+'</td><td class="'+(e.due>0?'red':'grn')+'">'+bn((+e.due).toLocaleString('en-US'))+'</td>'+del+'</tr>';
+  else h+='<tr><td>'+dshow(e.day)+'</td><td><span class="pill">পেমেন্ট</span></td><td>—</td><td class="grn">'+bn((+e.amount).toLocaleString('en-US'))+'</td><td>—</td>'+del+'</tr>'});
+ setPg(d.name,h+'</table></div><div class="sub" style="margin:0 4px">চালানে চাপলে পণ্যের তালিকা দেখা যাবে</div>')
 }
 function rWorkers(){
  var q=(FS||'').toLowerCase(),l=sorted(W,'name').filter(function(w){return !q||(w.name||'').toLowerCase().indexOf(q)>-1||(w.phone||'').indexOf(q)>-1});
- var h='<input class="srch" id="fs" placeholder="🔍 কর্মী খুঁজুন…" value="'+esc(FS)+'" oninput="FS=this.value;render()"><div class="card" style="padding:6px 6px"><table><tr><th>ক্রমিক</th><th>নাম</th><th>মোবাইল</th><th>ঠিকানা</th><th>বাকি</th><th></th></tr>';
- if(!l.length)h+='<tr><td colspan=6 class="sub">কোনো কর্মী নেই</td></tr>';
+ var h='<input class="srch" id="fs" placeholder="🔍 গ্রাহক খুঁজুন…" value="'+esc(FS)+'" oninput="FS=this.value;render()"><div class="card" style="padding:6px 6px"><table><tr><th>ক্রমিক</th><th>নাম</th><th>মোবাইল</th><th>ঠিকানা</th><th>বাকি</th><th></th></tr>';
+ if(!l.length)h+='<tr><td colspan=6 class="sub">কোনো গ্রাহক নেই</td></tr>';
  l.forEach(function(w,i){var d=due(w);h+='<tr><td>'+bn(i+1)+'</td><td><span class="nm" onclick="go(\'wpage\',\''+w.id+'\')">'+esc(w.name)+'</span></td><td>'+esc(w.phone||'')+'</td><td>'+esc(w.address||'')+'</td><td class="'+(d>0?'red':'grn')+'" style="white-space:nowrap">'+money(d)+'</td><td class="tb"><button class="ib" onclick="wForm(\''+w.id+'\')">✎</button><button class="ib" onclick="delW(\''+w.id+'\')">🗑</button></td></tr>'});
- setPg('কর্মী তালিকা',h+'</table></div>','wForm()')
+ setPg('গ্রাহক তালিকা',h+'</table></div>','wForm()')
 }
 function rWPage(){
  var w=W.find(function(x){return x.id===WID});if(!w){go('workers');return}
@@ -141,16 +158,16 @@ function rWPage(){
  var h='<div class="big r"><small>মোট বাকি</small><b>'+money(d)+'</b>'+((+w.opening)?'<small style="margin-top:4px">পূর্বের বাকি ধরা আছে: '+money(w.opening)+'</small>':'')+'</div>'
  +'<div class="two" style="margin-bottom:10px"><div class="btn g" onclick="invForm(\''+w.id+'\')">+ নতুন চালান</div><div class="btn o" onclick="payForm(\''+w.id+'\')">বাকি জমা নিন</div></div>'
  +'<div class="card"><b>লেনদেনের তালিকা</b>'+(l.length?l.map(function(e){
-  return e.type==='invoice'?'<div class="ent"><div class="h"><b>চালান #'+bn(e.no||'')+'</b><span class="sub">'+dshow(e.day)+' <button class="ib" style="font-size:14px" onclick="delE(\''+e.id+'\')">🗑</button></span></div><div class="sub">'+e.items.map(function(x){return esc(x.name)+' × '+bn(x.qty)}).join(', ')+'</div><div class="h" style="font-size:13px"><span>বিল '+money(e.total)+' · জমা '+money(e.paid)+'</span>'+(e.due>0?'<span class="red">বাকি '+money(e.due)+'</span>':'<span class="grn">নগদ</span>')+'</div></div>'
+  return e.type==='invoice'?'<div class="ent clk" onclick="invDet(\''+e.id+'\')"><div class="h"><b>চালান #'+bn(e.no||'')+'</b><span class="sub">'+dshow(e.day)+' <button class="ib" style="font-size:14px" onclick="event.stopPropagation();delE(\''+e.id+'\')">🗑</button></span></div><div class="h" style="font-size:13px"><span>বিল '+money(e.total)+' · জমা '+money(e.paid)+'</span>'+(e.due>0?'<span class="red">বাকি '+money(e.due)+'</span>':'<span class="grn">নগদ</span>')+'</div></div>'
   :'<div class="ent"><div class="h"><b>বাকি জমা</b><span class="sub">'+dshow(e.day)+' <button class="ib" style="font-size:14px" onclick="delE(\''+e.id+'\')">🗑</button></span></div><div class="grn">+ '+money(e.amount)+'</div></div>'}).join(''):'<div class="sub" style="margin-top:6px">এখনো কোনো লেনদেন নেই</div>')+'</div>';
  setPg(w.name,h)
 }
 function rProducts(){
  var q=(FS||'').toLowerCase(),l=sorted(P,'name').filter(function(p){return !q||(p.name||'').toLowerCase().indexOf(q)>-1});
- var h='<input class="srch" id="fs" placeholder="🔍 পণ্য খুঁজুন…" value="'+esc(FS)+'" oninput="FS=this.value;render()"><div class="card" style="padding:6px 6px"><table><tr><th>ক্রমিক</th><th>পণ্য</th><th>দাম</th><th></th></tr>';
+ var h='<input class="srch" id="fs" placeholder="🔍 পণ্য খুঁজুন…" value="'+esc(FS)+'" oninput="FS=this.value;render()"><div class="card" style="padding:6px 6px"><table><tr><th>ক্রমিক</th><th>পণ্য</th><th>১ পিসের দাম</th><th></th></tr>';
  if(!l.length)h+='<tr><td colspan=4 class="sub">কোনো পণ্য নেই</td></tr>';
- l.forEach(function(p,i){h+='<tr><td>'+bn(i+1)+'</td><td><b>'+esc(p.name)+'</b></td><td>'+money(p.price)+'</td><td class="tb"><button class="ib" onclick="pForm(\''+p.id+'\')">✎</button><button class="ib" onclick="delP(\''+p.id+'\')">🗑</button></td></tr>'});
- setPg('পণ্য',h+'</table></div><div class="sub" style="margin:0 4px">চালানে দাম বদলানো যাবে না, তালিকার দাম বসবে</div>','pForm()')
+ l.forEach(function(p,i){h+='<tr><td>'+bn(i+1)+'</td><td><b>'+esc(p.name)+'</b>'+(p.perCarton?'<div class="sub">কার্টুন '+money(p.cartonPrice)+' · '+bn(p.perCarton)+' পিস</div>':'')+'</td><td>'+money2(p.price)+'</td><td class="tb"><button class="ib" onclick="pForm(\''+p.id+'\')">✎</button><button class="ib" onclick="delP(\''+p.id+'\')">🗑</button></td></tr>'});
+ setPg('পণ্য',h+'</table></div><div class="sub" style="margin:0 4px">ডিলারের চালান সংরক্ষণ করলে পণ্য ও ১ পিসের দাম নিজে নিজে এখানে আসে</div>','pForm()')
 }
 function rSet(){setPg('সেটিং','<div class="card"><div class="sub" style="margin-bottom:10px">ঢুকে আছেন: '+esc(U.email)+'</div><button class="btn o" style="width:100%;margin-bottom:8px" onclick="backup()">ব্যাকআপ নামান</button><button class="btn r" style="width:100%" onclick="logout()">বের হন</button></div>')}
 window.logout=function(){if(confirm('বের হবেন?'))auth.signOut()};
@@ -159,19 +176,19 @@ window.backup=function(){var b=new Blob([JSON.stringify({workers:W,products:P,en
 function openM(h){$('modal').innerHTML='<div class="sheet">'+h+'</div>';$('modal').classList.remove('hide')}
 window.closeM=function(){$('modal').classList.add('hide');$('modal').innerHTML=''};
 function mhead(t){return '<h3><span>'+t+'</span><span onclick="closeM()" style="cursor:pointer">✕</span></h3>'}
-/* কর্মী */
+/* গ্রাহক */
 window.wForm=function(id){var w=id?W.find(function(x){return x.id===id}):{name:'',phone:'',address:'',opening:0};
- openM(mhead(id?'কর্মী সম্পাদনা':'নতুন কর্মী')+'<div class="fg"><label>নাম</label><input id="wn" value="'+esc(w.name)+'"></div><div class="fg"><label>মোবাইল</label><input id="wp" type="tel" value="'+esc(w.phone||'')+'"></div><div class="fg"><label>ঠিকানা</label><input id="wa" value="'+esc(w.address||'')+'"></div><div class="fg"><label>পূর্বের বাকি</label><input id="wo" type="number" min="0" value="'+(+w.opening||0)+'"></div><div id="me" class="err"></div><div class="two"><div class="btn o" onclick="closeM()">বাতিল</div><div class="btn g" onclick="saveW(\''+(id||'')+'\')">সংরক্ষণ</div></div>')};
+ openM(mhead(id?'গ্রাহক সম্পাদনা':'নতুন গ্রাহক')+'<div class="fg"><label>নাম</label><input id="wn" value="'+esc(w.name)+'"></div><div class="fg"><label>মোবাইল</label><input id="wp" type="tel" value="'+esc(w.phone||'')+'"></div><div class="fg"><label>ঠিকানা</label><input id="wa" value="'+esc(w.address||'')+'"></div><div class="fg"><label>পূর্বের বাকি</label><input id="wo" type="number" min="0" value="'+(+w.opening||0)+'"></div><div id="me" class="err"></div><div class="two"><div class="btn o" onclick="closeM()">বাতিল</div><div class="btn g" onclick="saveW(\''+(id||'')+'\')">সংরক্ষণ</div></div>')};
 window.saveW=function(id){var n=$('wn').value.trim(),p=$('wp').value.trim();if(!n){$('me').textContent='নাম দিন';return}
  if(W.some(function(x){return x.id!==id&&x.name===n&&(x.phone||'')===p})){$('me').textContent='এই নামে আগে আছে';return}
  var d={name:n,phone:p,address:$('wa').value.trim(),opening:Math.max(0,+$('wo').value||0)};
- var r=id?base.collection('workers').doc(id).update(d):base.collection('workers').add(d);r.catch(function(){});closeM();toast(id?'আপডেট হয়েছে':'কর্মী যোগ হয়েছে')};
+ var r=id?base.collection('workers').doc(id).update(d):base.collection('workers').add(d);r.catch(function(){});closeM();toast(id?'আপডেট হয়েছে':'গ্রাহক যোগ হয়েছে')};
 window.delW=function(id){var w=W.find(function(x){return x.id===id}),n=E.filter(function(e){return e.wid===id}).length;
  if(!confirm(w.name+' কে মুছবেন?'+(n?'\n\nতার '+bn(n)+'টি লেনদেনও মুছে যাবে।':'')))return;
  E.filter(function(e){return e.wid===id}).forEach(function(e){base.collection('entries').doc(e.id).delete().catch(function(){})});base.collection('workers').doc(id).delete().catch(function(){});toast('মুছে ফেলা হয়েছে')};
 /* পণ্য */
 window.pForm=function(id){var p=id?P.find(function(x){return x.id===id}):{name:'',price:''};
- openM(mhead(id?'পণ্য সম্পাদনা':'নতুন পণ্য')+'<div class="fg"><label>পণ্যের নাম</label><input id="pn" value="'+esc(p.name)+'"></div><div class="fg"><label>দাম (টাকা)</label><input id="pr" type="number" min="0" value="'+esc(p.price)+'"></div><div id="me" class="err"></div><div class="two"><div class="btn o" onclick="closeM()">বাতিল</div><div class="btn g" onclick="saveP(\''+(id||'')+'\')">সংরক্ষণ</div></div>')};
+ openM(mhead(id?'পণ্য সম্পাদনা':'নতুন পণ্য')+'<div class="fg"><label>পণ্যের নাম</label><input id="pn" value="'+esc(p.name)+'"></div><div class="fg"><label>১ পিসের দাম (টাকা)</label><input id="pr" type="number" min="0" value="'+esc(p.price)+'"></div><div id="me" class="err"></div><div class="two"><div class="btn o" onclick="closeM()">বাতিল</div><div class="btn g" onclick="saveP(\''+(id||'')+'\')">সংরক্ষণ</div></div>')};
 window.saveP=function(id){var n=$('pn').value.trim(),v=$('pr').value;if(!n||v===''||+v<0){$('me').textContent='নাম ও দাম দিন';return}
  if(P.some(function(x){return x.id!==id&&x.name===n})){$('me').textContent='এই নামে আগে আছে';return}
  var d={name:n,price:+v};(id?base.collection('products').doc(id).update(d):base.collection('products').add(d)).catch(function(){});closeM();toast(id?'আপডেট হয়েছে':'পণ্য যোগ হয়েছে')};
@@ -181,25 +198,72 @@ var II=[],IW=null;
 window.invForm=function(wid){IW=wid;II=[];
  openM(mhead('নতুন চালান')+'<div class="fg" style="margin-bottom:0"><label>পণ্য খুঁজুন</label><input id="is" placeholder="নাম লিখুন…" oninput="isr()" onfocus="isr()" autocomplete="off"></div><div id="idd" class="dd hide"></div><div id="ir" style="margin:8px 0"></div><div class="row" style="font-size:16px"><b>মোট বিল</b><b id="it">'+money(0)+'</b></div><div class="fg" style="margin-top:6px"><label>জমা (নগদ যা দিল)</label><input id="ip" type="number" min="0" value="0" oninput="ic()"></div><div class="row" style="font-size:16px"><b>বাকি</b><b class="red" id="id">'+money(0)+'</b></div><div id="me" class="err"></div><div class="two"><div class="btn o" onclick="closeM()">বাতিল</div><div class="btn g" onclick="saveInv()">সংরক্ষণ</div></div>')};
 window.isr=function(){var q=$('is').value.trim().toLowerCase(),l=sorted(P,'name').filter(function(p){return !q||p.name.toLowerCase().indexOf(q)>-1}),d=$('idd');
- d.innerHTML=l.length?l.map(function(p){return '<div onclick="ia(\''+p.id+'\')"><span>'+esc(p.name)+'</span><b>'+money(p.price)+'</b></div>'}).join(''):'<div class="sub">পণ্য পাওয়া যায়নি</div>';d.classList.remove('hide')};
+ d.innerHTML=l.length?l.map(function(p){return '<div onclick="ia(\''+p.id+'\')"><span>'+esc(p.name)+'</span><b>'+money2(p.price)+'</b></div>'}).join(''):'<div class="sub">পণ্য পাওয়া যায়নি</div>';d.classList.remove('hide')};
 window.ia=function(pid){var p=P.find(function(x){return x.id===pid}),r=II.find(function(x){return x.pid===pid});if(r)r.qty=(+r.qty||0)+1;else II.push({pid:pid,name:p.name,price:+p.price,qty:1});$('is').value='';$('idd').classList.add('hide');ir()};
-function ir(){$('ir').innerHTML=II.map(function(x,i){return '<div class="irow"><span class="n">'+esc(x.name)+'<div class="sub">'+money(x.price)+'</div></span><input type="number" min="0" step="any" value="'+x.qty+'" oninput="iq('+i+',this.value)"><span class="a" id="ia'+i+'">'+money(x.price*x.qty)+'</span><button class="ib" onclick="idl('+i+')">✕</button></div>'}).join('');ic()}
-window.iq=function(i,v){II[i].qty=+v||0;$('ia'+i).textContent=money(II[i].price*II[i].qty);ic()};
+function ir(){$('ir').innerHTML=II.map(function(x,i){return '<div class="irow"><span class="n">'+esc(x.name)+'<div class="sub">'+money2(x.price)+' / পিস</div></span><input type="number" min="0" step="any" value="'+x.qty+'" oninput="iq('+i+',this.value)"><span class="a" id="ia'+i+'">'+money(la(x))+'</span><button class="ib" onclick="idl('+i+')">✕</button></div>'}).join('');ic()}
+window.iq=function(i,v){II[i].qty=+v||0;$('ia'+i).textContent=money(la(II[i]));ic()};
 window.idl=function(i){II.splice(i,1);ir()};
-function itot(){return II.reduce(function(s,x){return s+x.price*x.qty},0)}
+function la(x){return Math.round(x.price*x.qty*100)/100}
+function itot(){return II.reduce(function(s,x){return s+la(x)},0)}
 window.ic=function(){var t=itot(),p=+($('ip').value||0);$('it').textContent=money(t);$('id').textContent=money(Math.max(0,t-p))};
 window.saveInv=function(){var its=II.filter(function(x){return x.qty>0}),t=itot(),p=+($('ip').value||0);
  if(!its.length){$('me').textContent='অন্তত একটি পণ্য বাছুন';return}
  if(p<0||p>t){$('me').textContent='জমা মোট বিলের চেয়ে বেশি হতে পারে না';return}
  var no=E.reduce(function(m,e){return e.type==='invoice'&&e.no>m?e.no:m},0)+1,ts=Date.now();
- base.collection('entries').add({type:'invoice',wid:IW,no:no,items:its.map(function(x){return {name:x.name,price:x.price,qty:x.qty}}),total:t,paid:p,due:t-p,ts:ts,day:dkey(ts)}).catch(function(){});closeM();toast('চালান সংরক্ষণ হয়েছে')};
+ base.collection('entries').add({type:'invoice',wid:IW,no:no,items:its.map(function(x){return {name:x.name,price:x.price,qty:x.qty,amt:la(x)}}),total:t,paid:p,due:t-p,ts:ts,day:dkey(ts)}).catch(function(){});closeM();toast('চালান সংরক্ষণ হয়েছে')};
 /* বাকি জমা */
 window.payForm=function(wid){var w=W.find(function(x){return x.id===wid}),d=due(w);
  openM(mhead('বাকি জমা নিন')+'<div class="row" style="font-size:15px"><span>এখন বাকি</span><b class="red">'+money(d)+'</b></div><div class="fg" style="margin-top:8px"><label>কত টাকা জমা নিলেন</label><input id="pa" type="number" min="0" oninput="pc('+d+')"></div><div class="fg"><label>তারিখ</label><input id="pd" type="date" value="'+dkey(Date.now())+'"></div><div class="row" style="font-size:15px"><span>জমার পরে বাকি</span><b id="pl">'+money(d)+'</b></div><div id="me" class="err"></div><div class="two"><div class="btn o" onclick="closeM()">বাতিল</div><div class="btn g" onclick="savePay(\''+wid+'\','+d+')">সংরক্ষণ</div></div>')};
 window.pc=function(d){$('pl').textContent=money(d-(+$('pa').value||0))};
 window.savePay=function(wid,d){var a=+$('pa').value,k=$('pd').value;if(!(a>0)){$('me').textContent='টাকার পরিমাণ দিন';return}if(a>d){$('me').textContent='বাকির চেয়ে বেশি জমা নেওয়া যাবে না';return}if(!k){$('me').textContent='তারিখ দিন';return}
  base.collection('entries').add({type:'payment',wid:wid,amount:a,ts:new Date(k+'T12:00:00').getTime(),day:k}).catch(function(){});closeM();toast('জমা সংরক্ষণ হয়েছে')};
-window.delE=function(id){if(confirm('এই লেনদেনটি মুছবেন? কর্মীর বাকি বদলে যাবে।'))base.collection('entries').doc(id).delete().catch(function(){})};
+window.delE=function(id){if(confirm('এই লেনদেনটি মুছবেন? গ্রাহকর বাকি বদলে যাবে।'))base.collection('entries').doc(id).delete().catch(function(){})};
+/* ---------- গ্রাহকের চালান দেখা ---------- */
+window.invDet=function(id){var e=E.find(function(x){return x.id===id});if(!e)return;
+ openM(mhead('চালান #'+bn(e.no||''))+'<div class="sub" style="margin-bottom:6px">'+dshow(e.day)+'</div>'+e.items.map(function(x){return '<div class="row"><span>'+esc(x.name)+'<div class="sub">'+bn(x.qty)+' পিস × '+money2(x.price)+'</div></span><b>'+money(x.amt!=null?x.amt:Math.round(x.price*x.qty*100)/100)+'</b></div>'}).join('')
+ +'<div class="row" style="font-size:15px"><b>মোট বিল</b><b>'+money(e.total)+'</b></div><div class="row"><span>জমা</span><b class="grn">'+money(e.paid)+'</b></div><div class="row"><span>বাকি</span><b class="'+(e.due>0?'red':'grn')+'">'+money(e.due)+'</b></div><div class="btn o" style="margin-top:8px" onclick="closeM()">বন্ধ করুন</div>')};
+/* ---------- ডিলার ---------- */
+window.dForm=function(id){var d=id?D.find(function(x){return x.id===id}):{name:''};
+ openM(mhead(id?'ডিলার সম্পাদনা':'নতুন ডিলার')+'<div class="fg"><label>ডিলারের (কোম্পানির) নাম</label><input id="dn" value="'+esc(d.name)+'"></div><div id="me" class="err"></div><div class="two"><div class="btn o" onclick="closeM()">বাতিল</div><div class="btn g" onclick="saveD(\''+(id||'')+'\')">সংরক্ষণ</div></div>')};
+window.saveD=function(id){var n=$('dn').value.trim();if(!n){$('me').textContent='নাম দিন';return}
+ if(D.some(function(x){return x.id!==id&&x.name===n})){$('me').textContent='এই নামে আগে আছে';return}
+ (id?base.collection('dealers').doc(id).update({name:n}):base.collection('dealers').add({name:n})).catch(function(){});closeM();toast(id?'আপডেট হয়েছে':'ডিলার যোগ হয়েছে')};
+window.delD=function(id){var d=D.find(function(x){return x.id===id}),l=DE.filter(function(e){return e.did===id});
+ if(!confirm(d.name+' কে মুছবেন?'+(l.length?'\n\nতার '+bn(l.length)+'টি লেনদেনও মুছে যাবে।':'')))return;
+ l.forEach(function(e){base.collection('dentries').doc(e.id).delete().catch(function(){})});base.collection('dealers').doc(id).delete().catch(function(){});toast('মুছে ফেলা হয়েছে')};
+window.delDE=function(id){if(confirm('এই লেনদেনটি মুছবেন? ডিলারের বাকি বদলে যাবে।\n(পণ্য তালিকা বদলাবে না)'))base.collection('dentries').doc(id).delete().catch(function(){})};
+/* ডিলারের নতুন চালান (কার্টুন হিসাবে) */
+var CI=[],CD=null;
+function cla(x){return Math.round((+x.cn||0)*(+x.cp||0)*100)/100}
+window.chForm=function(did){CD=did;CI=[{name:'',cn:'',per:'',cp:''}];
+ openM(mhead('নতুন চালান')+'<datalist id="pl">'+sorted(P,'name').map(function(p){return '<option value="'+esc(p.name)+'">'}).join('')+'</datalist><div class="fg"><label>চালান নম্বর</label><input id="cno"></div><div id="cl"></div><div class="btn o" style="margin-bottom:10px" onclick="cadd()">+ পণ্য যোগ করুন</div><div class="row" style="font-size:16px"><b>মোট বিল</b><b id="ct">'+money2(0)+'</b></div><div class="fg" style="margin-top:6px"><label>পেমেন্ট</label><input id="cpd" type="number" min="0" value="0" oninput="cc()"></div><div class="row" style="font-size:16px"><b>বাকি</b><b class="red" id="cdu">'+money2(0)+'</b></div><div id="me" class="err"></div><div class="two"><div class="btn o" onclick="closeM()">বাতিল</div><div class="btn g" onclick="saveCh()">সংরক্ষণ</div></div>');cr()};
+window.cadd=function(){CI.push({name:'',cn:'',per:'',cp:''});cr()};
+window.cdel=function(i){CI.splice(i,1);if(!CI.length)CI.push({name:'',cn:'',per:'',cp:''});cr()};
+function cr(){$('cl').innerHTML=CI.map(function(x,i){return '<div class="card" style="padding:8px"><div style="display:flex;gap:6px"><input list="pl" placeholder="পণ্যের নাম" value="'+esc(x.name)+'" oninput="cn_('+i+',\'name\',this.value)" onchange="cfill('+i+')"><button class="ib" onclick="cdel('+i+')">✕</button></div>'
+ +'<div class="three"><div><label>কার্টুন</label><input type="number" min="0" step="any" value="'+esc(x.cn)+'" oninput="cn_('+i+',\'cn\',this.value)"></div><div><label>পিস/কার্টুন</label><input type="number" min="1" step="any" value="'+esc(x.per)+'" oninput="cn_('+i+',\'per\',this.value)"></div><div><label>কার্টুনের দাম</label><input type="number" min="0" step="any" value="'+esc(x.cp)+'" oninput="cn_('+i+',\'cp\',this.value)"></div></div>'
+ +'<div class="row" style="font-size:13px"><span class="sub">১ পিসের দাম: <b id="cpp'+i+'"></b></span><b id="ca'+i+'"></b></div></div>'}).join('');CI.forEach(function(x,i){cu(i)});cc()}
+function cu(i){var x=CI[i],a=$('ca'+i),b=$('cpp'+i);if(a)a.textContent=money2(cla(x));if(b)b.textContent=(+x.per>0&&x.cp!=='')?money2((+x.cp||0)/(+x.per)):'—'}
+window.cn_=function(i,k,v){CI[i][k]=v;cu(i);cc()};
+window.cfill=function(i){var x=CI[i],p=P.find(function(q){return q.name===x.name.trim()});if(p&&p.perCarton&&!x.per&&!x.cp){x.per=p.perCarton;x.cp=p.cartonPrice;cr()}};
+function ctot(){return CI.reduce(function(s,x){return s+cla(x)},0)}
+window.cc=function(){var t=ctot(),p=+($('cpd').value||0);$('ct').textContent=money2(t);$('cdu').textContent=money2(Math.max(0,t-p))};
+window.saveCh=function(){var no=$('cno').value.trim(),its=CI.filter(function(x){return x.name.trim()||+x.cn||+x.per||+x.cp}),t=ctot(),p=+($('cpd').value||0);
+ if(!no){$('me').textContent='চালান নম্বর দিন';return}
+ if(!its.length){$('me').textContent='অন্তত একটি পণ্য দিন';return}
+ for(var i=0;i<its.length;i++){var x=its[i];if(!x.name.trim()||!(+x.cn>0)||!(+x.per>0)||x.cp===''||+x.cp<0){$('me').textContent='প্রতিটি পণ্যের নাম, কার্টুন, পিস/কার্টুন ও দাম ঠিকভাবে দিন';return}}
+ if(p<0||p>t){$('me').textContent='পেমেন্ট মোট বিলের চেয়ে বেশি হতে পারে না';return}
+ var ts=Date.now(),items=its.map(function(x){return {name:x.name.trim(),cn:+x.cn,per:+x.per,cp:+x.cp,amt:cla(x)}});
+ base.collection('dentries').add({type:'challan',did:CD,no:no,items:items,total:t,paid:p,due:Math.round((t-p)*100)/100,ts:ts,day:dkey(ts)}).catch(function(){});
+ var seen={};items.forEach(function(x){if(seen[x.name])return;seen[x.name]=1;var d={name:x.name,price:x.cp/x.per,perCarton:x.per,cartonPrice:x.cp},ex=P.find(function(q){return q.name===x.name});(ex?base.collection('products').doc(ex.id).update(d):base.collection('products').add(d)).catch(function(){})});
+ closeM();toast('চালান সংরক্ষণ হয়েছে, পণ্য তালিকা আপডেট হয়েছে')};
+window.chDet=function(id){var e=DE.find(function(x){return x.id===id});if(!e)return;
+ openM(mhead('চালান '+esc(bn(e.no)))+'<div class="sub" style="margin-bottom:6px">'+dshow(e.day)+'</div>'+e.items.map(function(x){return '<div class="row"><span>'+esc(x.name)+'<div class="sub">'+bn(x.cn)+' কার্টুন × '+money2(x.cp)+' ('+bn(x.per)+' পিস/কার্টুন)</div></span><b>'+money2(x.amt)+'</b></div>'}).join('')
+ +'<div class="row" style="font-size:15px"><b>মোট বিল</b><b>'+money2(e.total)+'</b></div><div class="row"><span>পেমেন্ট</span><b class="grn">'+money2(e.paid)+'</b></div><div class="row"><span>বাকি</span><b class="'+(e.due>0?'red':'grn')+'">'+money2(e.due)+'</b></div><div class="btn o" style="margin-top:8px" onclick="closeM()">বন্ধ করুন</div>')};
+/* ডিলারের পেমেন্ট */
+window.dpayForm=function(did){var d=D.find(function(x){return x.id===did}),v=ddue(d);
+ openM(mhead('পেমেন্ট')+'<div class="row" style="font-size:15px"><span>এখন বাকি</span><b class="red">'+money2(v)+'</b></div><div class="fg" style="margin-top:8px"><label>পেমেন্টের পরিমাণ</label><input id="dpa" type="number" min="0"></div><div id="me" class="err"></div><div class="two"><div class="btn o" onclick="closeM()">বাতিল</div><div class="btn g" onclick="saveDPay(\''+did+'\','+v+')">সংরক্ষণ</div></div>')};
+window.saveDPay=function(did,v){var a=+$('dpa').value;if(!(a>0)){$('me').textContent='টাকার পরিমাণ দিন';return}if(a>v){$('me').textContent='বাকির চেয়ে বেশি পেমেন্ট করা যাবে না';return}
+ var ts=Date.now();base.collection('dentries').add({type:'payment',did:did,amount:a,ts:ts,day:dkey(ts)}).catch(function(){});closeM();toast('পেমেন্ট সংরক্ষণ হয়েছে')};
 }
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
 </script></body></html>
