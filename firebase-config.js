@@ -1,0 +1,1 @@
+window.FB_CFG={apiKey:"AIzaSyBki4Y3vGOKDS1KhMxfYNQED1Jo02yFavo",authDomain:"dilar-hisab.firebaseapp.com",projectId:"dilar-hisab",storageBucket:"dilar-hisab.firebasestorage.app",messagingSenderId:"938708604922",appId:"1:938708604922:web:1f3b07b894daceb73b7643"};
