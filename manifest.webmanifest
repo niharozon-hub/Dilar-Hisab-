@@ -1,9 +1,8 @@
 {
-  "id": "./",
-  "name": "হিয়ান কৃষি ঘর",
-  "short_name": "হিয়ান কৃষি ঘর",
-  "description": "বিক্রয়, বাকি, ডিলার ও স্টকের হিসাব",
-  "lang": "bn",
+  "name": "DokanPro",
+  "short_name": "DokanPro",
+  "description": "Shop accounts: sales, dues, dealers and stock",
+  "lang": "en",
   "dir": "ltr",
   "start_url": "./",
   "scope": "./",
