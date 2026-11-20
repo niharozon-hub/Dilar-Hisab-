@@ -1,15 +1,15 @@
 {
-  "name": "হিয়ান কৃষি ঘর",
-  "short_name": "হিয়ান কৃষি ঘর",
-  "description": "হিয়ান কৃষি ঘর: বিক্রি, বাকি, ডিলার ও স্টকের হিসাব",
-  "lang": "bn",
+  "name": "হীয়ান কৃষি ঘর",
+  "short_name": "হীয়ান কৃষি ঘর",
+  "description": "Shop accounts: sales, dues, dealers and stock",
+  "lang": "en",
   "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "#1E6E28",
-  "background_color": "#1E6E28",
+  "theme_color": "#7B45B8",
+  "background_color": "#7B45B8",
   "icons": [
     {
       "src": "icon-192.png",
