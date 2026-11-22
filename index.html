@@ -221,6 +221,7 @@ body{background:linear-gradient(180deg,#9B6AD6 0%,#7B45B8 55%,#5E3294 100%) fixe
 .dx-chart{box-shadow:0 2px 8px rgba(30,10,60,.18)!important}
 #prnArea{display:none}
 @media print{body>*:not(#prnArea){display:none!important}#prnArea{display:block!important;padding:8mm;font-family:'Hind Siliguri',sans-serif;color:#000}#prnArea table{width:100%;border-collapse:collapse;font-size:13px}#prnArea th,#prnArea td{border:1px solid #888;padding:5px 7px;text-align:left}#prnArea th{background:#eee}#prnArea .r{text-align:right}}
+@media(min-width:1025px){
 /* === হিয়ান কৃষি ঘর নতুন ড্যাশবোর্ড === */
 aside.sidebar{background:#0d3b22!important;border-right:0!important}
 aside.sidebar .sb-head{flex-direction:column;justify-content:center;border-bottom:0!important;padding:22px 12px 14px!important}
@@ -256,6 +257,7 @@ body.pg-dash .topbar .tb-title{visibility:hidden}
 @media(max-width:1100px){.hk-cards{grid-template-columns:repeat(3,1fr)}.hk-r3{grid-template-columns:1fr 1fr}.hk-qb{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:700px){.hk-cards{grid-template-columns:1fr 1fr}.hk-r3,.hk-r2{grid-template-columns:1fr}.hk-ti{font-size:28px}.hk-ts{font-size:15px}.hk-qb{grid-template-columns:repeat(2,1fr)}}
 html,body,.main{background:#eef1ea!important}
+}
 </style>
 </head>
 <body>
@@ -669,7 +671,7 @@ document.addEventListener('mousedown',function(e){if(e.target.closest&&e.target.
 
 /* ═══════════════ নেভিগেশন ═══════════════ */
 var PT={dashboard:'ড্যাশবোর্ড',products:'পণ্য তালিকা',stocks:'পণ্য স্টক',customers:'গ্রাহক তালিকা',dealers:'কোম্পানি/ডিলার',dcust:'ডিলার গ্রাহক',dprod:'ডিলার পণ্য',summary:'হিসাব সারাংশ',report:'রিপোর্ট',settings:'সেটিং'};
-function showPage(p){document.body.classList.toggle('pg-dash',p==='dashboard');document.querySelectorAll('.page').forEach(function(e){e.classList.remove('act')});document.querySelectorAll('.nav-i').forEach(function(e){e.classList.remove('act')});document.getElementById('pg'+p.charAt(0).toUpperCase()+p.slice(1)).classList.add('act');var ni=document.querySelector('.nav-i[data-p="'+p+'"]');if(ni)ni.classList.add('act');document.getElementById('pageTitle').textContent=PT[p];if(p==='dashboard')renderDash();else if(p==='products')initPP();else if(p==='stocks')initSP();else if(p==='customers')initCP();else if(p==='dealers')initDP();else if(p==='dcust')initDC();else if(p==='dprod')initDPR();else if(p==='summary')initSUM();else if(p==='report')initRep();else if(p==='settings')initSettings();if(p==='dealers'||p==='dcust'||p==='dprod')navSubT(true);if(window.bnAct)bnAct(p);document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOv').style.display='none'}
+function showPage(p){document.body.classList.toggle('pg-dash',p==='dashboard'&&hkWide());document.querySelectorAll('.page').forEach(function(e){e.classList.remove('act')});document.querySelectorAll('.nav-i').forEach(function(e){e.classList.remove('act')});document.getElementById('pg'+p.charAt(0).toUpperCase()+p.slice(1)).classList.add('act');var ni=document.querySelector('.nav-i[data-p="'+p+'"]');if(ni)ni.classList.add('act');document.getElementById('pageTitle').textContent=PT[p];if(p==='dashboard')renderDash();else if(p==='products')initPP();else if(p==='stocks')initSP();else if(p==='customers')initCP();else if(p==='dealers')initDP();else if(p==='dcust')initDC();else if(p==='dprod')initDPR();else if(p==='summary')initSUM();else if(p==='report')initRep();else if(p==='settings')initSettings();if(p==='dealers'||p==='dcust'||p==='dprod')navSubT(true);if(window.bnAct)bnAct(p);document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOv').style.display='none'}
 function navSubT(o){var e=document.getElementById('navSub'),c=document.getElementById('navDlC');if(!e)return;var open=(o===undefined)?e.style.display==='none':o;e.style.display=open?'block':'none';if(c)c.className='fas fa-chevron-'+(open?'up':'down')}
 var nd=document.getElementById('navDl');if(nd){nd.addEventListener('click',function(){navSubT()});nd.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();navSubT()}})}
 document.querySelectorAll('.nav-i[data-p]').forEach(function(el){function go(){showPage(el.dataset.p)}el.addEventListener('click',go);el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})});
@@ -722,7 +724,30 @@ s+='<rect x="'+(x-bw-.5)+'" y="'+(T+ch-h1)+'" width="'+bw+'" height="'+h1+'" rx=
 s+='</svg>';
 return '<section class="dx-chart" aria-label="মাসিক হিসাব"><div class="dx-ch-h"><b>মাসিক বিক্রি ও বাকি</b><span><i style="background:#2E8B57"></i>মোট বিক্রি</span><span><i style="background:#D62828"></i>বাকি বিক্রি</span></div>'+s+'</section>'}
 function hkM(n){return '৳ '+toBn(Number(cl(n)||0).toLocaleString('en-IN'))}
-function renderDash(){
+function renderDashOld(){
+var td=autoDate(),e=getTE(),dt=new Date();
+var cash=getCS(td),cr=getCRS(td),tP=getTP(),tdue=totalAllDue(),tdd=totalDD(),tc=getTTC();
+var dp=Math.max(0,tc-(e.purchase+e.home+e.shop+exSum(e))),flB=flowF(fAll);
+var WD=['রবিবার','সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার','শুক্রবার','শনিবার'];
+var pc=tP>=0?'var(--c-grn)':'var(--c-red)';
+var open=lsGet('hianLedger')!=='0';
+var h='<div class="dx"><div class="dx-grid"><div class="dx-main">';
+h+='<div class="dx-acts"><button type="button" class="dx-btn dx-wide" onclick="openSI()"><i class="fas fa-file-invoice"></i> বাকি বিক্রি চালান</button><button type="button" class="dx-btn" onclick="openCS()"><i class="fas fa-money-bill-wave"></i> নগদ বিক্রি</button><button type="button" class="dx-btn" onclick="openTC()"><i class="fas fa-pen"></i> খরচ লিখুন</button><button type="button" class="dx-btn" onclick="openNC()"><i class="fas fa-user-plus"></i> নতুন গ্রাহক</button><button type="button" class="dx-btn" onclick="openNP()"><i class="fas fa-cube"></i> নতুন পণ্য</button></div>';
+h+='<div class="dx-tags">'+dxTag('red','গ্রাহকের বাকি',dxM(tdue),toBn(DB.customers.length)+' জন গ্রাহক','customers','fa-wallet')+dxTag('amb','ডিলার তথ্য',dxM(tdd),toBn(DB.dealers.length)+' জন ডিলার','dealerInfo','fa-building')+dxTag('grn','স্থিতি ব্যালেন্স',dxM(flB.net),'মোট খরচ '+dxM(flB.out),'summary','fa-scale-balanced')+'</div>';
+h+=dxChart();
+h+='<div class="dx-hbw"><span class="dx-hbands" aria-hidden="true"><i></i><i></i><i></i><i></i></span><button type="button" class="dx-hb'+(open?'':' closed')+'" id="dxHb" onclick="toggleLedger()" aria-expanded="'+open+'" aria-controls="dxSheet"><span><i class="fas fa-book-open"></i> আজকের হিসাব</span><span class="dx-chev"><i class="fas fa-chevron-down"></i></span></button></div>';
+h+='<section class="dx-sheet'+(open?'':' closed')+'" id="dxSheet" aria-label="আজকের হিসাব"><div class="dx-in">';
+h+='<div class="dx-head"><h2 class="dx-date">'+toBn(dt.getDate())+' '+MONTHS[dt.getMonth()]+'</h2><p class="dx-year">'+toBn(dt.getFullYear())+', '+WD[dt.getDay()]+'</p></div>';
+h+='<div class="dx-cols"><div class="dx-col"><h3>বিক্রি</h3>'+dxLine('নগদ',dxM(cash))+dxLine('বাকি',dxM(cr),{click:'openCSV()'})+dxLine('মোট বিক্রি',dxM(cash+cr),{cls:'tot'})+'</div>';
+h+='<div class="dx-col"><h3>খরচ</h3>'+dxLine('পণ্য ক্রয়',dxM(e.purchase))+dxLine('ডিলার পেমেন্ট',dxM(dp))+dxLine(nmL('বাড়ি',e.homeN&&e.home?{[e.homeN]:1}:{}),dxM(e.home))+dxLine(nmL('দোকান',e.shopN&&e.shop?{[e.shopN]:1}:{}),dxM(e.shop))+exLines(e)+dxLine('মোট খরচ',dxM(tc),{cls:'tot'})+'</div></div>';
+h+='<div class="dx-bottom"><span>আজকের লাভ</span><strong style="color:'+pc+'">'+dxM(tP)+'</strong></div>';
+h+='</div></section>';
+h+='</div><figure class="dx-photo" role="img" aria-label="ড্যাশবোর্ডের ছবি"></figure></div></div>';
+document.getElementById('pgDashboard').innerHTML=h}
+function hkWide(){return window.matchMedia&&window.matchMedia('(min-width:1025px)').matches}
+function renderDash(){document.body.classList.toggle('pg-dash',hkWide()&&document.getElementById('pgDashboard').classList.contains('act'));if(hkWide())renderDashNew();else renderDashOld()}
+(function(){if(window.matchMedia){var m=window.matchMedia('(min-width:1025px)'),f=function(){try{if(typeof DB!=='undefined'&&DB&&document.getElementById('pgDashboard').classList.contains('act'))renderDash();else document.body.classList.toggle('pg-dash',false)}catch(e){}};if(m.addEventListener)m.addEventListener('change',f);else if(m.addListener)m.addListener(f)}})();
+function renderDashNew(){
 document.body.classList.toggle('pg-dash',document.getElementById('pgDashboard').classList.contains('act'));
 var td=autoDate(),e=getTE(),dt=new Date();
 var cash=getCS(td),cr=getCRS(td),tP=getTP(),tdue=totalAllDue(),tdd=totalDD(),tc=getTTC();
