@@ -311,53 +311,29 @@ html,body,.main{background:#eef1ea!important}
   .dx-acts .dx-btn:nth-child(4):last-child{grid-column:1 / -1!important}
 }
 </style>
-<style id="pcDashPolish">
-@media(min-width:1025px){
-  .main{padding-top:12px!important}
-  .hk{max-width:1320px!important;margin:0 auto!important;padding:0 6px!important}
-  .hk-hd{margin:2px 0 14px!important;display:flex!important;align-items:baseline!important;gap:14px!important;flex-wrap:wrap!important}
-  .hk-ti{font-size:32px!important;font-weight:700!important;color:#0b6b2e!important;line-height:1.2!important}
-  .hk-ts{font-size:16px!important;font-weight:600!important;color:#374151!important}
-  .hk-cards{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:12px!important;margin-bottom:14px!important}
-  .hk-c{min-height:94px!important;padding:14px 16px!important;border-radius:12px!important;box-shadow:0 2px 6px rgba(15,23,42,.06)!important}
-  .hk-cv{font-size:24px!important;font-weight:700!important;margin:4px 0!important;white-space:nowrap!important}
-  .hk-ct{font-size:13.5px!important;font-weight:600!important}
-  .hk-cs{font-size:12px!important;opacity:.92!important}
-  .hk-r3{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin-bottom:14px!important}
-  .hk-r2{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin-bottom:14px!important}
-  .hk-p{border-radius:12px!important;box-shadow:0 1px 4px rgba(15,23,42,.05)!important}
-  .hk-p h3{padding:11px 16px!important;font-size:15.5px!important;font-weight:700!important;background:#fafaf8!important}
-  .hk-kv{padding:9px 16px!important;font-size:14px!important;align-items:center!important}
-  .hk-kv b{font-size:17px!important}
-  .hk-bars{padding:12px 16px 10px!important;height:155px!important;gap:12px!important}
-  .hk-p th,.hk-p td{padding:8px 10px!important;font-size:13.5px!important}
-  .hk-big{padding:14px 16px 4px!important;font-size:28px!important}
-  .hk-sm{padding:0 16px 14px!important;font-size:13px!important}
-  .hk-qb{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:10px!important;padding:12px 16px 16px!important}
-  .hk-qb button{padding:14px 10px!important;border-radius:10px!important;font-size:14px!important;gap:8px!important}
-}
-</style>
-<style id="pcDashCardColors">
-.hk-c.g{background:linear-gradient(135deg,#15803d,#16a34a)!important;color:#fff!important}
-.hk-c.v{background:linear-gradient(135deg,#6d28d9,#7c3aed)!important;color:#fff!important}
-.hk-c.b{background:linear-gradient(135deg,#1d4ed8,#2563eb)!important;color:#fff!important}
-.hk-c.a{background:linear-gradient(135deg,#b45309,#d97706)!important;color:#fff!important}
-.hk-c.w{background:#ffffff!important;color:#111827!important;border:1px solid #d1d5db!important}
-@media(min-width:1025px){
-  .hk-bars i{background:linear-gradient(180deg,#2563eb,#15803d)!important}
-}
-</style>
-<style id="userPhotoLogoFix">
+<style id="hianLogoFitFix">
 aside.sidebar .sb-logo{
   width:112px!important;height:112px!important;border-radius:50%!important;
-  background:#fff url(logo.png) center/cover no-repeat!important;
+  background:#fff url(logo.png) center/contain no-repeat!important;
   font-size:0!important;color:transparent!important;border:3px solid #fff!important;
-  overflow:hidden!important;
 }
 .lg-logo{
-  width:96px!important;height:96px!important;border-radius:50%!important;
-  object-fit:cover!important;border:3px solid #fff!important;box-shadow:0 4px 12px rgba(0,0,0,.18)!important;
+  width:104px!important;height:104px!important;border-radius:18px!important;
+  object-fit:contain!important;background:#fff!important;padding:4px!important;
+  border:2px solid #e5e7eb!important;box-shadow:0 4px 12px rgba(0,0,0,.14)!important;
 }
+</style>
+<style id="pcDashClean">
+@media(min-width:1025px){
+  .hk{max-width:1320px;margin:0 auto;padding:0 6px}
+  .hk-cards{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+  .hk-r3{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .hk-r2{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+}
+.hk-c.g{background:linear-gradient(135deg,#15803d,#16a34a);color:#fff}
+.hk-c.v{background:linear-gradient(135deg,#6d28d9,#7c3aed);color:#fff}
+.hk-c.b{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff}
+.hk-c.a{background:linear-gradient(135deg,#b45309,#d97706);color:#fff}
 </style>
 </head>
 <body>
@@ -1081,19 +1057,20 @@ function sCS(){if(!cSI.length){toast('warn','কমপক্ষে একটি 
 
 /* ═══════════════ খরচ ═══════════════ */
 function exRow(x){return '<div class="ex-row"><input id="" class="exN" placeholder="খরচের নাম" value="'+esc2(x&&x.name||'')+'"><input type="number" class="exA" placeholder="টাকা" min="0" value="'+(x&&x.amt?x.amt:'')+'" oninput="cET()"><button type="button" class="cap-x" onclick="this.parentNode.remove();cET()" aria-label="মুছুন">✕</button></div>'}
-function xSum(a){return (a||[]).reduce(function(t,x){return t+(+x.amt||0)},0)}
+function xSum(e){return (e&&Array.isArray(e.extra)?e.extra:[]).reduce(function(x,y){return x+(+y.amt||0)},0)}
+function arrSum(a){return (a||[]).reduce(function(t,x){return t+(+x.amt||0)},0)}
 function addEXK(id){var d=document.createElement('div');d.innerHTML=exRow(null);document.getElementById(id).appendChild(d.firstChild)}
 function exReadK(id){var r=[];Array.prototype.forEach.call(document.querySelectorAll('#'+id+' .ex-row'),function(w){var n=w.querySelector('.exN').value.trim(),a=Math.max(0,+(w.querySelector('.exA').value||0));if(a>0)r.push({name:n||'নাম নেই',amt:a})});return r}
 function addEX(){var d=document.createElement('div');d.innerHTML=exRow(null);document.getElementById('eXs').appendChild(d.firstChild)}
 function exRead(){var r=[];Array.prototype.forEach.call(document.querySelectorAll('#eXs .ex-row'),function(w){var n=w.querySelector('.exN').value.trim(),a=Math.max(0,+(w.querySelector('.exA').value||0));if(a>0)r.push({name:n||'অন্যান্য',amt:a})});return r}
 var tcResetOnOpen=false;
 function openTC(){
-  var e=tcResetOnOpen?{purchase:0,home:0,shop:0,homeX:[],shopX:[],homeN:'',shopN:''}:getTE();
+  var e=tcResetOnOpen?{purchase:0,home:0,shop:0,homeX:[],shopX:[],homeN:'',shopN:'',extra:[]}:getTE();
   tcResetOnOpen=false;
   var pVal=+e.purchase||0;
-  var hBase=Math.max(0,(+e.home||0)-xSum(e.homeX||[]));
-  var sBase=Math.max(0,(+e.shop||0)-xSum(e.shopX||[]));
-  setM('mainModal','<div class="m-head"><h3>আজকের খরচ</h3><button class="m-x" onclick="closeM(\'mainModal\')"><i class="fas fa-times"></i></button></div><div class="m-body"><div class="fg"><label>পণ্য ক্রয়</label><input type="number" id="eP" value="'+(pVal||'')+'" placeholder="0" min="0" oninput="cET()"></div><div class="fg"><label>বাড়ি খরচ</label><div class="ex-row"><input id="eHN" class="exN" placeholder="কী বাবদ (নাম)" value="'+esc2(e.homeN||'')+'"><input type="number" id="eH" class="exA" placeholder="টাকা" value="'+(hBase||'')+'" min="0" oninput="cET()"></div><div id="eHX">'+(e.homeX||[]).map(exRow).join('')+'</div><button type="button" class="mbtn mbtn-g" style="width:100%;margin-top:6px" onclick="addEXK(\'eHX\')"><i class="fas fa-plus"></i> আরো যোগ করুন</button></div><div class="fg"><label>দোকান খরচ</label><div class="ex-row"><input id="eSN" class="exN" placeholder="কী বাবদ (নাম)" value="'+esc2(e.shopN||'')+'"><input type="number" id="eS" class="exA" placeholder="টাকা" value="'+(sBase||'')+'" min="0" oninput="cET()"></div><div id="eSX">'+(e.shopX||[]).map(exRow).join('')+'</div><button type="button" class="mbtn mbtn-g" style="width:100%;margin-top:6px" onclick="addEXK(\'eSX\')"><i class="fas fa-plus"></i> আরো যোগ করুন</button></div><div style="padding:12px 0;font-size:15px;font-weight:700;border-top:1px solid var(--bd)">মোট: <span id="eT" style="color:var(--red)">৳ '+wn(cl(pVal+hBase+sBase+xSum(e.homeX||[])+xSum(e.shopX||[])))+'</span></div><div style="margin-top:6px;padding-top:12px;border-top:1px dashed var(--bd);display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="mbtn mbtn-g" onclick="clearTCInputs()">ঘর খালি করুন</button><button type="button" class="mbtn mbtn-g" style="color:var(--red);border-color:#f3c0c0" onclick="resetExp()">আজকের খরচ মুছুন</button></div></div><div class="m-foot"><button class="mbtn mbtn-g" onclick="closeM(\'mainModal\')">বাতিল</button><button class="mbtn mbtn-gr" onclick="sE()"><i class="fas fa-save"></i> সংরক্ষণ</button></div>');
+  var hBase=Math.max(0,(+e.home||0)-arrSum(e.homeX||[]));
+  var sBase=Math.max(0,(+e.shop||0)-arrSum(e.shopX||[]));
+  setM('mainModal','<div class="m-head"><h3>আজকের খরচ</h3><button class="m-x" onclick="closeM(\'mainModal\')"><i class="fas fa-times"></i></button></div><div class="m-body"><div class="fg"><label>পণ্য ক্রয়</label><input type="number" id="eP" value="'+(pVal||'')+'" placeholder="0" min="0" oninput="cET()"></div><div class="fg"><label>বাড়ি খরচ</label><div class="ex-row"><input id="eHN" class="exN" placeholder="কী বাবদ (নাম)" value="'+esc2(e.homeN||'')+'"><input type="number" id="eH" class="exA" placeholder="টাকা" value="'+(hBase||'')+'" min="0" oninput="cET()"></div><div id="eHX">'+(e.homeX||[]).map(exRow).join('')+'</div><button type="button" class="mbtn mbtn-g" style="width:100%;margin-top:6px" onclick="addEXK(\'eHX\')"><i class="fas fa-plus"></i> আরো যোগ করুন</button></div><div class="fg"><label>দোকান খরচ</label><div class="ex-row"><input id="eSN" class="exN" placeholder="কী বাবদ (নাম)" value="'+esc2(e.shopN||'')+'"><input type="number" id="eS" class="exA" placeholder="টাকা" value="'+(sBase||'')+'" min="0" oninput="cET()"></div><div id="eSX">'+(e.shopX||[]).map(exRow).join('')+'</div><button type="button" class="mbtn mbtn-g" style="width:100%;margin-top:6px" onclick="addEXK(\'eSX\')"><i class="fas fa-plus"></i> আরো যোগ করুন</button></div><div style="padding:12px 0;font-size:15px;font-weight:700;border-top:1px solid var(--bd)">মোট: <span id="eT" style="color:var(--red)">৳ '+wn(cl(pVal+hBase+sBase+arrSum(e.homeX||[])+arrSum(e.shopX||[])+xSum(e)))+'</span></div><div style="margin-top:6px;padding-top:12px;border-top:1px dashed var(--bd);display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="mbtn mbtn-g" onclick="clearTCInputs()">ঘর খালি করুন</button><button type="button" class="mbtn mbtn-g" style="color:var(--red);border-color:#f3c0c0" onclick="resetExp()">আজকের খরচ মুছুন</button></div></div><div class="m-foot"><button class="mbtn mbtn-g" onclick="closeM(\'mainModal\')">বাতিল</button><button class="mbtn mbtn-gr" onclick="sE()"><i class="fas fa-save"></i> সংরক্ষণ</button></div>');
   openM('mainModal');
   cET();
 }
@@ -1103,7 +1080,7 @@ function clearTCInputs(){
   var sx=document.getElementById('eSX');if(sx)sx.innerHTML='';
   var et=document.getElementById('eT');if(et)et.textContent='৳ '+wn(0);
 }
-function cET(){var p=+(document.getElementById('eP')?.value||0),h=+(document.getElementById('eH')?.value||0),s=+(document.getElementById('eS')?.value||0);h+=xSum(exReadK('eHX'));s+=xSum(exReadK('eSX'));var et=document.getElementById('eT');if(et)et.textContent='৳ '+wn(cl(p+h+s))}
+function cET(){var p=+(document.getElementById('eP')?.value||0),h=+(document.getElementById('eH')?.value||0),s=+(document.getElementById('eS')?.value||0);h+=arrSum(exReadK('eHX'));s+=arrSum(exReadK('eSX'));var et=document.getElementById('eT');if(et)et.textContent='৳ '+wn(cl(p+h+s+xSum(getTE())))}
 function resetExp(){
 if(!confirm('আজকের খরচ (পণ্য ক্রয়, বাড়ি ও দোকান খরচ) মুছে ০ হয়ে যাবে।\n\nঅন্য দিনের খরচ, ডিলারের পেমেন্ট ও বিক্রির হিসাব থাকবে।\n\nএগিয়ে যাবেন?'))return;
 var td=autoDate();DB.expenses=DB.expenses.filter(function(x){return x.date!==td});tcResetOnOpen=false;saveDB();closeM('mainModal');renderDash();
@@ -1115,7 +1092,7 @@ function sE(){
   var s=Math.max(0,+(document.getElementById('eS')?.value||0));
   var hx=exReadK('eHX'),sx=exReadK('eSX');
   var e=getTE();
-  e.purchase=p;e.home=h+xSum(hx);e.shop=s+xSum(sx);e.homeX=hx;e.shopX=sx;
+  e.purchase=p;e.home=h+arrSum(hx);e.shop=s+arrSum(sx);e.homeX=hx;e.shopX=sx;
   e.homeN=(document.getElementById('eHN')?.value||'').trim();
   e.shopN=(document.getElementById('eSN')?.value||'').trim();
   tcResetOnOpen=true;
