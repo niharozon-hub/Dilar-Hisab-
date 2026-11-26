@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="bn" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>অফলাইন — হিয়ান কৃষি ঘর</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Hind Siliguri','Anek Bangla',system-ui,-apple-system,'Segoe UI',sans-serif;background:#E8ECE3;color:#14301F;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{background:#FBFCF9;border:1px solid #cdd5c6;border-radius:12px;box-shadow:0 6px 0 -2px #EEF2E9,0 7px 0 -2px #cdd5c6;max-width:420px;width:100%;overflow:hidden;text-align:center}
+.bands{display:grid;grid-template-columns:repeat(4,1fr);height:7px}
+.bands i:nth-child(1){background:#D6322B}
+.bands i:nth-child(2){background:#F2B705}
+.bands i:nth-child(3){background:#1F5FBF}
+.bands i:nth-child(4){background:#1E9A4B}
+.in{padding:36px 28px}
+.ic{width:72px;height:72px;margin:0 auto 18px;border-radius:18px;background:linear-gradient(135deg,#0fa968,#088a54);display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:700;font-family:'Space Grotesk',system-ui,sans-serif}
+h1{font-family:'Anek Bangla','Hind Siliguri',sans-serif;font-size:24px;font-weight:800;margin-bottom:6px;line-height:1.2}
+p{font-size:14.5px;color:#5d6f61;line-height:1.6;margin-bottom:22px}
+.dot{display:inline-block;width:9px;height:9px;background:#ef4444;border-radius:50%;margin-right:6px;vertical-align:middle;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.btn{display:inline-block;padding:12px 24px;border-radius:8px;background:#14301F;color:#fff;text-decoration:none;font-size:14px;font-weight:600;border:none;cursor:pointer;font-family:inherit}
+.btn:hover{background:#265534}
+.hint{margin-top:18px;font-size:12px;color:#8e99a8}
+</style>
+</head>
+<body>
+<div class="card">
+<div class="bands"><i></i><i></i><i></i><i></i></div>
+<div class="in">
+<div class="ic">হিয়া</div>
+<h1>আপনি এখন অফলাইন</h1>
+<p><span class="dot"></span>ইন্টারনেট সংযোগ নেই। আপনার হিসাব এই ডিভাইসে নিরাপদ আছে — ইন্টারনেট ফিরলে নিজে সিঙ্ক হবে।</p>
+<button class="btn" onclick="location.reload()">পুনরায় চেষ্টা করুন</button>
+<div class="hint">হিয়ান কৃষি ঘর · ইনভেন্টরি ম্যানেজমেন্ট সিস্টেম</div>
+</div>
+</div>
+<script>window.addEventListener('online',function(){location.reload()})</script>
+</body>
+</html>
