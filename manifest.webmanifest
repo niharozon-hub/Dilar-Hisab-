@@ -1,7 +1,6 @@
 {
-  "id": "/",
   "name": "হিয়ান কৃষি ঘর",
-  "short_name": "হিয়ান কৃষি",
+  "short_name": "হিয়ান কৃষি ঘর",
   "description": "দোকানের হিসাব: বিক্রি, বাকি, ডিলার ও স্টক",
   "lang": "bn",
   "dir": "ltr",
@@ -9,9 +8,8 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "#14301F",
-  "background_color": "#E8ECE3",
-  "categories": ["business", "finance", "productivity"],
+  "theme_color": "#7B45B8",
+  "background_color": "#7B45B8",
   "icons": [
     {
       "src": "icon-192.png",
